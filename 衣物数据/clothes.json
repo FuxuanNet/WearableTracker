@@ -1,0 +1,30 @@
+[
+    {
+    "name": "黄灰色长袖",
+    "type": "上衣",
+    "color": "黄灰色",
+    "size": "M",
+    "price": 100,
+    "description": "舒适透气，适合日常穿着",
+    "image": "https://example.com/images/yellow_gray_long_sleeve.jpg"
+    },
+    {
+    "name": "黑色短裤",
+    "type": "裤子",
+    "color": "黑色",
+    "size": "M",
+    "price": 80,
+    "description": "简约时尚，适合休闲场合",
+    "image": "https://example.com/images/black_shorts.jpg"
+    }
+]
+
+// 衣服图片：（jpg图片或图片路径str）
+// 衣服名称：(str)
+// 类别：半袖、长袖、短裤、长裤
+// 厚度：薄款、常规、加厚
+// 层数：内层、中层、外层
+// 套装：不是套装; 和谁是套装
+// 好看等级：1-5(int)
+// 特殊服饰属性：睡衣、睡裤、泳衣、泳裤、线衣、线裤(str)
+// 留言备注：写点什么(str)

@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* 让元素的宽高包含 padding 和 border */
+}
+
+body {
+  font-family: Arial, sans-serif; /* 设置字体 */
+}
+
+a {
+  text-decoration: none; /* 去掉链接下划线 */
+}
+
+ul, ol {
+  list-style: none; /* 去掉列表默认的点 */
+}
