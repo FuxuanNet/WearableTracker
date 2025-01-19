@@ -43,7 +43,7 @@ const handleClose = (key, keyPath) => {
 
             <el-menu-item index="/">
                 <el-icon>
-                    <House />
+                    <PieChart />
                 </el-icon>
                 <template #title>概览</template>
             </el-menu-item>

@@ -1,7 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import ClothingCard from '@/components/ClothingCard.vue';
-
+import { clothesApi } from '@/api';
 // 模拟数据
 const clothingItems = ref([
     {
@@ -21,11 +21,20 @@ const clothingItems = ref([
     // 可以添加更多示例数据
 ])
 
-// 添加新卡片
-const handleAdd = () => {
-    clothingItems.value.push({
-        id: Date.now(), // 临时ID
-        name: '',
+// 获取所有衣物数据
+const fetchClothes = async () => {
+    try {
+        const data = await clothesApi.getAll()
+        clothingItems.value = data
+    } catch (error) {
+        console.error('获取衣物数据失败:', error)
+    }
+}
+
+// 添加新衣物
+const handleAdd = async () => {
+    const newClothes = {
+        name: '新衣物', // 默认名称
         image: '',
         category: '',
         thickness: '',
@@ -36,42 +45,68 @@ const handleAdd = () => {
         note: '',
         status: 'stored',
         isFavorite: false
-    })
+    }
+    try {
+        const addedClothes = await clothesApi.add(newClothes)
+        clothingItems.value.push(addedClothes)
+        ElMessage.success('添加衣物成功')
+    } catch (error) {
+        console.error('添加衣物失败:', error)
+        ElMessage.error('添加衣物失败')
+    }
 }
 
+
+
 // 更新卡片
-const handleUpdate = (index, newData) => {
-    clothingItems.value[index] = { ...clothingItems.value[index], ...newData }
-    // TODO: 调用后端API更新数据
-    // await updateClothing(clothingItems.value[index])
+const handleUpdate = async (index, newData) => {
+    try {
+        const updatedClothes = await clothesApi.update(newData.id, newData)
+        clothingItems.value[index] = updatedClothes
+    } catch (error) {
+        console.error('更新衣物失败:', error)
+    }
 }
 
 // 删除卡片
-const handleDelete = (index) => {
-    clothingItems.value.splice(index, 1)
-    // TODO: 调用后端API删除数据
-    // await deleteClothing(id)
+const handleDelete = async (index) => {
+    const id = clothingItems.value[index].id
+    try {
+        await clothesApi.delete(id)
+        clothingItems.value.splice(index, 1)
+    } catch (error) {
+        console.error('删除衣物失败:', error)
+    }
 }
 
 // 更新衣物状态
-const handleStatusUpdate = (index, status) => {
-    clothingItems.value[index] = {
-        ...clothingItems.value[index],
-        status
+const handleStatusUpdate = async (index, status) => {
+    const id = clothingItems.value[index].id
+    try {
+        const updatedClothes = await clothesApi.updateStatus(id, status)
+        clothingItems.value[index] = updatedClothes
+    } catch (error) {
+        console.error('更新状态失败:', error)
     }
-    // TODO: 调用后端API更新状态
-    // await updateClothingStatus(id, status)
 }
 
 // 更新收藏状态
-const handleFavoriteUpdate = (index, isFavorite) => {
-    clothingItems.value[index] = {
-        ...clothingItems.value[index],
-        isFavorite
+const handleFavoriteUpdate = async (index, isFavorite) => {
+    const id = clothingItems.value[index].id
+    try {
+        const updatedClothes = await clothesApi.updateFavorite(id, isFavorite)
+        clothingItems.value[index] = updatedClothes
+    } catch (error) {
+        console.error('更新收藏状态失败:', error)
     }
-    // TODO: 调用后端API更新收藏状态
-    // await updateClothingFavorite(id, isFavorite)
 }
+
+
+// 组件挂载时获取数据
+onMounted(() => {
+    fetchClothes()
+})
+
 </script>
 
 <template>
