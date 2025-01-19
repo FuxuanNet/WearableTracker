@@ -1,7 +1,6 @@
 <script setup>
 import MainMenu from '../components/MainMenu.vue'
 import { ref } from 'vue'
-import { ElMenuItem } from 'element-plus';
 
 const countdownValue = ref(Date.now() + 40 * 60 * 1000) // 当前时间 + 40 分钟
 const dryingClothesCount = ref(9)
@@ -9,15 +8,16 @@ const storedClothesCount = ref(9)
 const wearingClothesCount = ref(9)
 
 const menuItems = [
-  { name: '概览', index: '/' }
-]
+  { name: '概览', index: '/' },
 
-const activeIndex = '/' // 设置默认激活的菜单项索引
+]
 
 // 监听菜单项的选择
 const handleMenuSelect = (index) => {
   console.log('选中的菜单项索引:', index)
 }
+
+const activeIndex = '/' // 设置默认激活的菜单项索引
 </script>
 
 <template>

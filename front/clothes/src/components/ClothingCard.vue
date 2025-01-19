@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
     // 卡片数据
@@ -14,23 +14,53 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['update', 'delete'])
+const emit = defineEmits(['update', 'delete', 'status-update', 'favorite-update'])
+
+// 编辑状态
+const isEditMode = ref(false)
 
 // 编辑状态的临时数据
 const editData = ref({ ...props.item })
 
 // 类别选项
 const categoryOptions = ['半袖', '长袖', '短裤', '长裤']
+
 // 厚度选项
 const thicknessOptions = ['薄款', '常规', '加厚']
+
 // 层数选项
 const layerOptions = ['内层', '中层', '外层']
+
 // 特殊属性选项
 const specialOptions = ['睡衣', '睡裤', '泳衣', '泳裤', '线衣', '线裤']
+
+// 计算属性：按钮状态
+const wearingButtonText = computed(() => {
+    return props.item.status === 'wearing' ? '在穿' : '穿着'
+})
+
+const washingButtonText = computed(() => {
+    return props.item.status === 'washing' ? '在洗' : '洗涤'
+})
+
+const dryingButtonText = computed(() => {
+    return props.item.status === 'drying' ? '在晒' : '晾晒'
+})
+
+const favoriteButtonText = computed(() => {
+    return props.item.isFavorite ? '已收藏' : '收藏'
+})
 
 // 保存编辑
 const handleSave = () => {
     emit('update', { ...editData.value })
+    isEditMode.value = false
+}
+
+// 取消编辑
+const handleCancel = () => {
+    editData.value = { ...props.item }
+    isEditMode.value = false
 }
 
 // 删除卡片
@@ -50,12 +80,26 @@ const handleImageUpload = (event) => {
         reader.readAsDataURL(file)
     }
 }
+
+// 处理状态更新
+const handleStatusUpdate = (status) => {
+    if (props.item.status === status) {
+        emit('status-update', 'stored')
+    } else {
+        emit('status-update', status)
+    }
+}
+
+// 处理收藏更新
+const handleFavoriteUpdate = () => {
+    emit('favorite-update', !props.item.isFavorite)
+}
 </script>
 
 <template>
     <el-card class="clothing-card">
         <!-- 查看模式 -->
-        <template v-if="!isEditing">
+        <template v-if="!isEditMode">
             <div class="image-container">
                 <img :src="item.image" :alt="item.name">
             </div>
@@ -65,6 +109,15 @@ const handleImageUpload = (event) => {
                     <el-tag size="small">{{ item.category }}</el-tag>
                     <el-tag size="small" type="success">{{ item.thickness }}</el-tag>
                     <el-tag size="small" type="warning">{{ item.layer }}</el-tag>
+                    <el-tag v-if="item.status !== 'stored'" size="small" type="info">
+                        {{
+                        {
+                        'wearing': '正在穿着',
+                        'washing': '正在洗涤',
+                        'drying': '正在晾晒'
+                        }[item.status]
+                        }}
+                    </el-tag>
                 </div>
                 <div class="rating">
                     <span>好看等级：</span>
@@ -80,7 +133,22 @@ const handleImageUpload = (event) => {
                     {{ item.note }}
                 </div>
                 <div class="actions">
-                    <el-button type="primary" link @click="$emit('update:isEditing', true)">
+                    <el-button type="primary" :disabled="item.status === 'wearing'" link
+                        @click="handleStatusUpdate('wearing')">
+                        {{ wearingButtonText }}
+                    </el-button>
+                    <el-button type="warning" :disabled="item.status === 'washing'" link
+                        @click="handleStatusUpdate('washing')">
+                        {{ washingButtonText }}
+                    </el-button>
+                    <el-button type="info" :disabled="item.status === 'drying'" link
+                        @click="handleStatusUpdate('drying')">
+                        {{ dryingButtonText }}
+                    </el-button>
+                    <el-button :type="item.isFavorite ? 'default' : 'success'" link @click="handleFavoriteUpdate">
+                        {{ favoriteButtonText }}
+                    </el-button>
+                    <el-button type="primary" link @click="isEditMode = true">
                         编辑
                     </el-button>
                     <el-button type="danger" link @click="handleDelete">
@@ -142,7 +210,7 @@ const handleImageUpload = (event) => {
 
                 <div class="actions">
                     <el-button type="primary" @click="handleSave">保存</el-button>
-                    <el-button @click="$emit('update:isEditing', false)">取消</el-button>
+                    <el-button @click="handleCancel">取消</el-button>
                 </div>
             </el-form>
         </template>
@@ -151,8 +219,8 @@ const handleImageUpload = (event) => {
 
 <style scoped>
 .clothing-card {
-    width: 300px;
-    margin: 10px;
+    width: 340px;
+    /* margin: 10px; */
 }
 
 .image-container {
@@ -201,11 +269,14 @@ const handleImageUpload = (event) => {
 .actions {
     margin-top: 15px;
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+    justify-content: center;
+    gap: 8px;
 }
 
 .upload-btn {
     margin: 10px 0;
 }
 </style>
+
+
+
